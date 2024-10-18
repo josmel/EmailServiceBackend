@@ -110,7 +110,7 @@ CloudWatch (Logging/Monitoring)
 
 ### Prerequisites
 
-- **Node.js** (v14.x or higher recommended)
+- **Node.js** (v18.x or higher recommended)
 - **Serverless Framework** (`npm install -g serverless`)
 - AWS account credentials (set in your local environment using `aws configure`)
 
