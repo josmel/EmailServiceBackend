@@ -1,4 +1,4 @@
-import { Email } from '../src/all-type-email';
+import { Email } from '../src/email-types';
 
 export const mockBody: Email = {
   from: process.env.EMAIL_FROM || 'your-verified-email@example.com',

@@ -12,3 +12,8 @@ export interface EmailResponse {
 export interface ErrorResponse extends EmailResponse {
   error: string;
 }
+export enum EmailProviderEnum {
+  MAILGUN = 'Mailgun',
+  SENDGRID = 'SendGrid',
+  SES = 'SES',
+}

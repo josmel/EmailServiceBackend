@@ -1,7 +1,7 @@
 import { handler } from '../../src/handlers/send-email-with-mailgun';
 import { MailgunService } from '../../src/email-providers/mailgun-service';
 import { mockBody } from '../dummy';
-import { Email } from '../../src/all-type-email';
+import { Email } from '../../src/email-types';
 
 jest.mock('../../src/email-providers/mailgun-service');
 

@@ -1,8 +1,7 @@
-import * as AWS from 'aws-sdk';
-import { Email, EmailResponse, ErrorResponse } from '../all-type-email';
+import { StepFunctions } from 'aws-sdk';
+import { Email, EmailResponse, ErrorResponse } from '../email-types';
 
-const stepFunctions = new AWS.StepFunctions();
-
+const stepFunctionsClient = new StepFunctions();
 export const handler = async (
   event
 ): Promise<EmailResponse | ErrorResponse> => {
@@ -14,7 +13,7 @@ export const handler = async (
   };
 
   try {
-    await stepFunctions.startExecution(params).promise();
+    await stepFunctionsClient.startExecution(params).promise();
     return {
       statusCode: 200,
       body: JSON.stringify({ message: 'Email failover process started' }),

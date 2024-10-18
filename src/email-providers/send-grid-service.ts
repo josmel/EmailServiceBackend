@@ -1,6 +1,6 @@
 import sgMail from '@sendgrid/mail';
 import { EmailProvider } from './email-provider';
-import { Email } from '../all-type-email';
+import { Email } from '../email-types';
 
 export class SendGridService implements EmailProvider {
   private apiKey: string;

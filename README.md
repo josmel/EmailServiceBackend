@@ -10,8 +10,7 @@ This is a serverless email failover service that provides an abstraction between
 4. [Setup and Installation](#setup-and-installation)
 5. [Usage](#usage)
 6. [Testing](#testing)
-7. [Limitations and Future Improvements](#limitations-and-future-improvements)
-8. [Frontend Integration](#frontend-integration)
+7. [Frontend Integration](#frontend-integration)
 
 ## Architecture Overview
 
@@ -92,12 +91,15 @@ CloudWatch (Logging/Monitoring)
   │   │   ├── mailgun-service.ts
   │   │   ├── send-grid-service.ts
   │   │   └── ses-service.ts
+  │   │   └── email-service-factory.ts
   │   ├── handlers             # Lambda handlers
   │   │   ├── send-email-lambda.ts
+  │   │   ├── send-email-handler.ts
   │   │   ├── send-email-with-mailgun.ts
   │   │   ├── send-email-with-sendgrid.ts
   │   │   └── send-email-with-ses.ts
-  │   ├── tests                # Unit and integration tests
+  │   ├── email-types.ts
+  ├── tests                    # Unit and integration tests
   ├── .env                     # Environment variables
   ├── package.json             # Project dependencies
   ├── serverless.yml           # Serverless Framework configuration
@@ -221,17 +223,6 @@ npm run lint
 npm run lint:fix
 npm run format
 ```
-
-### Limitations
-
-- **Local Step Functions**: Step Functions can't be fully emulated locally, so the failover logic relies on AWS. It’s recommended to deploy and test directly in AWS.
-- **Timeouts**: The current setup does not handle timeouts for long-running Lambda executions.
-
-### Future Improvements
-
-- **Add more email providers**: Currently supports SendGrid, Mailgun, and SES, but can be extended to support more providers.
-- **Improve logging**: Add more detailed logging using AWS CloudWatch for monitoring the success and failure of email sends.
-- **Add retries**: Implement retries and exponential backoff in Step Functions to handle transient failures.don
 
 ## Frontend Integration
 

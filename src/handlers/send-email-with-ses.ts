@@ -1,20 +1,11 @@
-import { SESService } from '../email-providers/ses-service';
-import { Email, EmailResponse } from '../all-type-email';
+import { sendEmailHandler } from './send-email-handler';
+import { EmailServiceFactory } from '../email-providers/email-service-factory';
+import { EmailProviderEnum } from '../email-types';
 
-const sesService = new SESService();
+const SesService = EmailServiceFactory.createEmailService(
+  EmailProviderEnum.SES
+);
 
-export const handler = async (event): Promise<EmailResponse> => {
-  const { to, subject, body }: Email = event;
-
-  try {
-    await sesService.sendEmail({ to, subject, body });
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Email sent successfully with SES' }),
-    };
-  } catch (error) {
-    console.error(`Error in SES Lambda: ${error.message}`);
-
-    throw error;
-  }
+export const handler = async (event) => {
+  return await sendEmailHandler(event, SesService, EmailProviderEnum.SES);
 };

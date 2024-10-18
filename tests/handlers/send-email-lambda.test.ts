@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk';
 import { handler } from '../../src/handlers/send-email-lambda';
 import { mockBody } from '../dummy';
 
-import { Email } from '../../src/all-type-email';
+import { Email } from '../../src/email-types';
 
 const { to, subject, body } = mockBody;
 const requestInfo: Email = { to, subject, body };

@@ -1,16 +1,12 @@
 import mailgun from 'mailgun-js';
 import { EmailProvider } from './email-provider';
-import { Email } from '../all-type-email';
+import { Email } from '../email-types';
 
 export class MailgunService implements EmailProvider {
-  private apiKey: string;
-  private domain: string;
   private mg;
 
   constructor(apiKey: string, domain: string) {
-    this.apiKey = apiKey;
-    this.domain = domain;
-    this.mg = mailgun({ domain: this.domain, apiKey: this.apiKey });
+    this.mg = mailgun({ domain, apiKey });
   }
 
   async sendEmail(email: Email): Promise<void> {

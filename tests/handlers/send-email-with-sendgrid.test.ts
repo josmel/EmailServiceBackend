@@ -1,7 +1,7 @@
 import { handler } from '../../src/handlers/send-email-with-sendgrid';
 import { SendGridService } from '../../src/email-providers/send-grid-service';
 import { mockBody } from '../dummy';
-import { Email } from '../../src/all-type-email';
+import { Email } from '../../src/email-types';
 
 jest.mock('../../src/email-providers/send-grid-service');
 

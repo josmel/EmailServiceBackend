@@ -1,4 +1,4 @@
-import { Email } from '../all-type-email';
+import { Email } from '../email-types';
 
 /* eslint-disable no-unused-vars */
 export interface EmailProvider {

@@ -1,7 +1,7 @@
 import { handler } from '../../src/handlers/send-email-with-ses';
 import { SESService } from '../../src/email-providers/ses-service';
 import { mockBody } from '../dummy';
-import { Email } from '../../src/all-type-email';
+import { Email } from '../../src/email-types';
 
 jest.mock('../../src/email-providers/ses-service');
 
