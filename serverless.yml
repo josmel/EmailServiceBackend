@@ -48,27 +48,27 @@ functions:
       - http:
           path: email/send
           method: post
+          cors:
+            origin: https://emailserviceclient.netlify.app
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - Access-Control-Allow-Origin
+            methods:
+              - POST
+              - OPTIONS
           request:
             schemas:
               application/json: ${file(src/config/email-request-schema.json)}
   sendEmailWithSendGrid:
     handler: src/handlers/send-email-with-sendgrid.handler
-    events:
-      - http:
-          path: email/sendgrid
-          method: post
   sendEmailWithMailgun:
     handler: src/handlers/send-email-with-mailgun.handler
-    events:
-      - http:
-          path: email/mailgun
-          method: post
   sendEmailWithSES:
     handler: src/handlers/send-email-with-ses.handler
-    events:
-      - http:
-          path: email/ses
-          method: post
 
 stepFunctions:
   stateMachines:
