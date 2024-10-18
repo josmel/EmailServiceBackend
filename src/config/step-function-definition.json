@@ -1,0 +1,47 @@
+{
+  "Comment": "Email sending failover process",
+  "StartAt": "SendEmailWithSendGrid",
+  "States": {
+    "SendEmailWithSendGrid": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:${self:service}-${self:provider.stage}-sendEmailWithSendGrid",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.errorInfo",
+          "Next": "SendEmailWithMailgun"
+        }
+      ],
+      "End": true
+    },
+    "SendEmailWithMailgun": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:${self:service}-${self:provider.stage}-sendEmailWithMailgun",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.errorInfo",
+          "Next": "SendEmailWithSES"
+        }
+      ],
+      "End": true
+    },
+    "SendEmailWithSES": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:${self:service}-${self:provider.stage}-sendEmailWithSES",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.errorInfo",
+          "Next": "FailState"
+        }
+      ],
+      "End": true
+    },
+    "FailState": {
+      "Type": "Fail",
+      "Error": "AllProvidersFailed",
+      "Cause": "All email providers failed to send the email"
+    }
+  }
+}

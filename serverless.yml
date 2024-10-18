@@ -1,0 +1,82 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: josmelnyh89
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: email-service-step-function
+service: email-service
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: dev
+  environment:
+    SENDGRID_API_KEY: ${env:SENDGRID_API_KEY}
+    MAILGUN_API_KEY: ${env:MAILGUN_API_KEY}
+    MAILGUN_DOMAIN: ${env:MAILGUN_DOMAIN}
+    EMAIL_FROM: ${env:EMAIL_FROM}
+    AWS_ACCOUNT_ID: ${aws:accountId}
+    STEP_FUNCTION_ARN: arn:aws:states:${self:provider.region}:${aws:accountId}:stateMachine:EmailFailoverStateMachineStepFunction
+
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 's3:*'
+        - 'ssm:GetParameter'
+      Resource: '*'
+
+    - Effect: 'Allow'
+      Action:
+        - 'states:CreateStateMachine'
+        - 'states:StartExecution'
+        - 'states:DescribeStateMachine'
+        - 'states:DeleteStateMachine'
+        - 'states:UpdateStateMachine'
+      Resource: '*'
+
+    - Effect: 'Allow'
+      Action:
+        - 'iam:PassRole'
+        - 'iam:CreateRole'
+        - 'iam:AttachRolePolicy'
+        - 'iam:PutRolePolicy'
+      Resource: '*'
+
+functions:
+  sendEmailLambda:
+    handler: src/handlers/send-email-lambda.handler
+    events:
+      - http:
+          path: email/send
+          method: post
+          request:
+            schemas:
+              application/json: ${file(src/config/email-request-schema.json)}
+  sendEmailWithSendGrid:
+    handler: src/handlers/send-email-with-sendgrid.handler
+    events:
+      - http:
+          path: email/sendgrid
+          method: post
+  sendEmailWithMailgun:
+    handler: src/handlers/send-email-with-mailgun.handler
+    events:
+      - http:
+          path: email/mailgun
+          method: post
+  sendEmailWithSES:
+    handler: src/handlers/send-email-with-ses.handler
+    events:
+      - http:
+          path: email/ses
+          method: post
+
+stepFunctions:
+  stateMachines:
+    emailFailoverStateMachine:
+      name: EmailFailoverStateMachineStepFunction
+      definition: ${file(src/config/step-function-definition.json)}
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+  - serverless-step-functions
