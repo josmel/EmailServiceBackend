@@ -10,6 +10,8 @@ This is a serverless email failover service that provides an abstraction between
 4. [Setup and Installation](#setup-and-installation)
 5. [Usage](#usage)
 6. [Testing](#testing)
+7. [Limitations and Future Improvements](#limitations-and-future-improvements)
+8. [Frontend Integration](#frontend-integration)
 
 ## Architecture Overview
 
@@ -19,18 +21,53 @@ The service is built using **AWS Lambda** and **AWS Step Functions**. The key co
 - **Email Providers**: Implementations for **SendGrid**, **Mailgun**, and **SES**, each in their own Lambda functions.
 - **Serverless Framework**: Used to deploy the Lambda functions and configure the AWS infrastructure.
 - **Step Functions Definition**: Orchestrates the email sending process between the different providers.
+  Step Function Flow:
+
+1. **SendEmailWithSendGrid**:
+
+   - Starts by attempting to send the email using SendGrid.
+
+2. **SendEmailWithMailgun**:
+
+   - If SendGrid fails, the process retries with Mailgun.
+
+3. **SendEmailWithSES**:
+
+   - If both SendGrid and Mailgun fail, SES will be used as a final failover.
+
+4. **FailState**:
+   - If all providers fail, the process enters a fail state.
+
+### Step Function Workflow
+
+This is the flow of the Step Function used in the email service:
+
+![Step Function Workflow](./step-function.png)
 
 ### Architecture Diagram
 
 ```
-Client
+Client (React App)
    |
    |  POST /email/send
    v
-API Gateway --> AWS Lambda (send-email-lambda)
-                     |
-                     v
-              AWS Step Functions -----> Email Providers (SendGrid, Mailgun, SES)
+API Gateway
+   |
+   v
+AWS Lambda (send-email-lambda)
+   |
+   v
+AWS Step Functions
+   |
+   v
+Email Providers:
+   - SendGrid
+   - Mailgun
+   - SES
+   |
+   v
+CloudWatch (Logging/Monitoring)
+
 ```
 
 ## Features
@@ -40,6 +77,7 @@ API Gateway --> AWS Lambda (send-email-lambda)
 - **Serverless deployment**: Easily deployable with **Serverless Framework**.
 - **Environment isolation**: Uses `.env` for managing API keys and configuration values.
 - **Pluggable providers**: Easily extendable to add more email providers.
+- **CORS Support**: Configured to allow cross-origin requests from the frontend hosted on Netlify.
 
 ## Project Structure
 
@@ -116,7 +154,13 @@ npm run offline
 Once running, you can send POST requests to the local endpoint:
 
 ```bash
-curl -X POST http://localhost:3000/dev/email/send   -H "Content-Type: application/json"   -d '{"to": "recipient@example.com", "subject": "Test Email", "body": "This is a test email sent locally."}'
+curl --location 'http://localhost:3000/dev/email/send' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "to": "recipient@example.com",
+    "subject": "Test Email",
+    "body": "This is a test email sent locally."
+}'
 ```
 
 ### Production
@@ -124,7 +168,13 @@ curl -X POST http://localhost:3000/dev/email/send   -H "Content-Type: applicatio
 To invoke the deployed service, use the AWS API Gateway URL:
 
 ```bash
-curl -X POST https://{api-id}.execute-api.{region}.amazonaws.com/dev/email/send   -H "Content-Type: application/json"   -d '{"to": "recipient@example.com", "subject": "Production Email", "body": "This is a production email."}'
+curl -X POST https://{api-id}.execute-api.{region}.amazonaws.com/dev/email/send
+--header "Content-Type: application/json"
+--data-raw '{
+   "to": "recipient@example.com",
+   "subject": "Production Email",
+   "body": "This is a production email."
+}'
 ```
 
 ## Testing
@@ -171,3 +221,22 @@ npm run lint
 npm run lint:fix
 npm run format
 ```
+
+### Limitations
+
+- **Local Step Functions**: Step Functions can't be fully emulated locally, so the failover logic relies on AWS. It’s recommended to deploy and test directly in AWS.
+- **Timeouts**: The current setup does not handle timeouts for long-running Lambda executions.
+
+### Future Improvements
+
+- **Add more email providers**: Currently supports SendGrid, Mailgun, and SES, but can be extended to support more providers.
+- **Improve logging**: Add more detailed logging using AWS CloudWatch for monitoring the success and failure of email sends.
+- **Add retries**: Implement retries and exponential backoff in Step Functions to handle transient failures.don
+
+## Frontend Integration
+
+The frontend of this service is hosted on Netlify and communicates with this backend using API Gateway endpoints. The CORS policy is configured to allow requests from the frontend domain.
+
+### Frontend URL:
+
+[https://emailserviceclient.netlify.app](https://emailserviceclient.netlify.app)
